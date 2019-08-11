@@ -40,6 +40,7 @@ def main():
     dataset_size = data.shape[0]
 
     os.makedirs("../../Generated/training/models/", exist_ok=True)
+    os.makedirs("../../Generated/training/training_samples/", exist_ok=True)
 
     epoch = 0
     while not handler.stop:  # Stop on kill signal (Ctrl+C)
