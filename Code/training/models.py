@@ -24,7 +24,10 @@ def make_generator():
     conv256 = Conv2DTranspose(256, kernel_size=3, strides=2, padding="same", activation="relu")(batch_norm512) # 64x64
     batch_norm256 = BatchNormalization(momentum=BN_MOMENTUM)(conv256)
 
-    output_tensor = Conv2DTranspose(3, kernel_size=3, strides=2, padding="same", activation="tanh")(batch_norm256) # 128x128
+    conv128 = Conv2DTranspose(128, kernel_size=3, strides=2, padding="same", activation="relu")(batch_norm256) # 128x128
+    batch_norm128 = BatchNormalization(momentum=BN_MOMENTUM)(conv128)
+
+    output_tensor = Conv2DTranspose(3, kernel_size=3, strides=2, padding="same", activation="tanh")(batch_norm128) # 256x256
 
     return Model(inputs=input_tensor, outputs=output_tensor)
 
@@ -35,26 +38,31 @@ def make_discriminator():
 
     input_tensor = Input(shape=(h, w, 3), dtype="float32")
 
-    conv1 = Conv2D(256, kernel_size=3, strides=2, padding="same")(input_tensor)  # 64x64
+    conv1 = Conv2D(128, kernel_size=3, strides=2, padding="same")(input_tensor)  # 128x128
     activ1 = LeakyReLU(alpha=0.2)(conv1)
     batch_norm1 = BatchNormalization(momentum=BN_MOMENTUM)(activ1)
     dropout1 = Dropout(0.25)(batch_norm1)
 
-    conv2 = Conv2D(512, kernel_size=3, strides=2, padding="same")(dropout1)  # 32x32
+    conv2 = Conv2D(256, kernel_size=3, strides=2, padding="same")(dropout1)  # 64x64
     activ2 = LeakyReLU(alpha=0.2)(conv2)
     batch_norm2 = BatchNormalization(momentum=BN_MOMENTUM)(activ2)
     dropout2 = Dropout(0.25)(batch_norm2)
 
-    conv3 = Conv2D(512, kernel_size=3, strides=2, padding="same")(dropout2)  # 16x16
+    conv3 = Conv2D(512, kernel_size=3, strides=2, padding="same")(dropout2)  # 32x32
     activ3 = LeakyReLU(alpha=0.2)(conv3)
     batch_norm3 = BatchNormalization(momentum=BN_MOMENTUM)(activ3)
     dropout3 = Dropout(0.25)(batch_norm3)
 
-    conv4 = Conv2D(1024, kernel_size=3, strides=2, padding="same")(dropout3)  # 8x8
+    conv4 = Conv2D(512, kernel_size=3, strides=2, padding="same")(dropout3)  # 16x16
     activ4 = LeakyReLU(alpha=0.2)(conv4)
-    dropout4 = Dropout(0.25)(activ4)
+    batch_norm4 = BatchNormalization(momentum=BN_MOMENTUM)(activ4)
+    dropout4 = Dropout(0.25)(batch_norm4)
 
-    flattened = Flatten()(dropout4)
+    conv5 = Conv2D(1024, kernel_size=3, strides=2, padding="same")(dropout4)  # 8x8
+    activ5 = LeakyReLU(alpha=0.2)(conv5)
+    dropout5 = Dropout(0.25)(activ5)
+
+    flattened = Flatten()(dropout5)
     output_tensor = Dense(1, activation="sigmoid")(flattened)
 
     return Model(inputs=input_tensor, outputs=output_tensor)
