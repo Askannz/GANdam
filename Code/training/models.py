@@ -9,9 +9,8 @@ BN_MOMENTUM = 0.3
 def make_generator():
 
     input_tensor = Input(shape=(LATENT_DIM,), dtype="float32")
-    dense1 = Dense(4096, activation="relu")(input_tensor)
-    dense2 = Dense(2 * 2 * 2048, activation="relu")(dense1)
-    reshape = Reshape((2, 2, 2048))(dense2)  # 2x2
+    dense1 = Dense(2 * 2 * 2048, activation="relu")(input_tensor)
+    reshape = Reshape((2, 2, 2048))(dense1)  # 2x2
 
     conv1 = Conv2DTranspose(1024, kernel_size=3, strides=2, padding="same", activation="relu")(reshape)  # 4x4
     batch1 = BatchNormalization(momentum=BN_MOMENTUM)(conv1)
