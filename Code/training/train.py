@@ -10,7 +10,7 @@ from keras.layers import Input
 from keras.models import Model
 from keras.optimizers import Adam
 from models import make_generator, make_discriminator
-from shared_constants import LATENT_DIM
+from shared_constants import LATENT_DIM, IMG_SHAPE
 from data import load_data
 
 
@@ -26,7 +26,9 @@ LR_DISCRIMINATOR = 0.00001
 LR_COMBINED = 0.0001
 DISCRIMINATOR_LABELS_NOISE = 0.01
 
-SAMPLE_FREQ = 10
+SINGLE_SAMPLE_FREQ = 10
+GRID_SAMPLE_FREQ = 100
+GRID_DIMENSIONS = (2, 4)
 CHECKPOINT_FREQ = 2000
 
 def main():
@@ -41,6 +43,7 @@ def main():
 
     os.makedirs("../../Generated/training/models/", exist_ok=True)
     os.makedirs("../../Generated/training/training_samples/", exist_ok=True)
+    os.makedirs("../../Generated/training/training_samples_grid/", exist_ok=True)
 
     epoch = 0
     while not handler.stop:  # Stop on kill signal (Ctrl+C)
@@ -73,8 +76,11 @@ def main():
         print("(%d) Discriminator : %f / %f / %.2f %% / %.2f %% || Combined : %f"
               % (epoch, discr_loss_true, discr_loss_fake, 100 * discr_acc_true, 100 * discr_acc_fake, comb_loss))
 
-        if epoch % SAMPLE_FREQ == 0:
-            _sample_generated_images(generator, epoch)
+        if epoch % SINGLE_SAMPLE_FREQ == 0:
+            _sample_single_image(generator, epoch)
+
+        if epoch % GRID_SAMPLE_FREQ == 0:
+            _sample_images_grid(generator, epoch)
 
         if epoch != 0 and epoch % CHECKPOINT_FREQ == 0:
             _save_models(generator, discriminator, "checkpoint-%d" % epoch)
@@ -113,16 +119,34 @@ def _make_trainable_models():
 
     return generator, discriminator, combined
 
-def _sample_generated_images(generator, epoch):
-
+def _sample_single_image(generator, epoch):
     samples_path = Path("../../Generated/training/training_samples/")
+    img = _sample_from_generator(generator)
+    img_path = samples_path / ("%d.png" % epoch)
+    cv2.imwrite(str(img_path), img)
 
+def _sample_images_grid(generator, epoch):
+
+    h, w = IMG_SHAPE
+    h_g, w_g = GRID_DIMENSIONS
+
+    samples_path = Path("../../Generated/training/training_samples_grid/")
+
+    img_grid = np.zeros((h * h_g, w * w_g, 3), np.uint8)
+
+    for i in range(w_g * h_g):
+        x = w * (i % w_g)
+        y = h * (i // w_g)
+        img_grid[y:y+h, x:x+w, :] = _sample_from_generator(generator)
+
+    grid_img_path = samples_path / ("%d.png" % epoch)
+    cv2.imwrite(str(grid_img_path), img_grid)
+
+def _sample_from_generator(generator):
     noise = np.random.normal(0, 1, (1, LATENT_DIM))
     img_float = generator.predict(noise)[0]
     img = np.clip((img_float + 1) * 127.5, 0, 255).astype(np.uint8)
-
-    img_path = samples_path / ("%d.png" % epoch)
-    cv2.imwrite(str(img_path), img)
+    return img
 
 def _save_models(generator, discriminator, name):
 
