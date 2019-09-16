@@ -1,16 +1,29 @@
 from pathlib import Path
 import cv2
 import numpy as np
-from shared_constants import IMG_SHAPE
+from shared_constants import DOWNSCALED_IMG_SHAPE, ORIGINAL_IMG_SHAPE
 
 
-def load_data():
+def load_gan_data():
+    data_folder_path = Path("../../Generated/preprocessing/downscaled_images/")
+    return _load_images(data_folder_path, DOWNSCALED_IMG_SHAPE)
 
-    data_folder_path = Path("../../Generated/preprocessing/augmented_images/")
+def load_upscaler_data():
 
-    h, w = IMG_SHAPE
+    samples_folder_path = Path("../../Generated/preprocessing/downscaled_images/")
+    samples_data = _load_images(samples_folder_path, DOWNSCALED_IMG_SHAPE)
 
-    filepaths_list = list(data_folder_path.iterdir())
+    labels_folder_path = Path("../../Generated/preprocessing/augmented_images/")
+    labels_data = _load_images(labels_folder_path, ORIGINAL_IMG_SHAPE)
+
+    return samples_data, labels_data
+
+
+def _load_images(data_folder_path, img_shape):
+
+    h, w = img_shape
+
+    filepaths_list = list(sorted(data_folder_path.iterdir(), key=lambda p: p.name))
     n = len(filepaths_list)
 
     images_array = np.zeros((n, h, w, 3), np.uint8)
