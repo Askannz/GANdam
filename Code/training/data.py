@@ -6,7 +6,7 @@ from shared_constants import IMG_SHAPE
 
 def load_data():
 
-    data_folder_path = Path("../../Generated/preprocessing/augmented_images/")
+    data_folder_path = Path("../../Generated/preprocessing/resized_images/")
 
     h, w = IMG_SHAPE
 

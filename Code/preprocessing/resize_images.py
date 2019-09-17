@@ -12,7 +12,7 @@ TARGET_SHAPE = (256, 256)
 
 def main():
 
-    input_folder_path = Path("../../Generated/preprocessing/manually_selected/")
+    input_folder_path = Path("../../Generated/preprocessing/flip_corrected/")
     output_folder_path = Path("../../Generated/preprocessing/resized_images/")
 
     shutil.rmtree(output_folder_path, ignore_errors=True)
