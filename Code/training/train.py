@@ -41,6 +41,8 @@ def main():
     data = load_data()
     dataset_size = data.shape[0]
 
+    _print_summaries(generator, discriminator)
+
     os.makedirs("../../Generated/training/models/", exist_ok=True)
     os.makedirs("../../Generated/training/training_samples/", exist_ok=True)
     os.makedirs("../../Generated/training/training_samples_grid/", exist_ok=True)
@@ -72,7 +74,7 @@ def main():
 
         #
         # Progression
-    
+
         print("(%d) Discriminator : %f / %f / %.2f %% / %.2f %% || Combined : %f"
               % (epoch, discr_loss_true, discr_loss_fake, 100 * discr_acc_true, 100 * discr_acc_fake, comb_loss))
 
@@ -91,6 +93,17 @@ def main():
     # Saving final models
 
     _save_models(generator, discriminator, "final")
+
+def _print_summaries(generator, discriminator):
+
+    print("Generator:")
+    generator.summary()
+
+    print("Discriminator:")
+    discriminator.summary()
+
+    print("Press ENTER to continue")
+    input()
 
 
 def _make_trainable_models():
