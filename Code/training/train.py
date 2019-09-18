@@ -23,8 +23,8 @@ keras.Model._check_trainable_weights_consistency = _check_trainable_weights_cons
 
 
 BATCH_SIZE = 32
-LR_DISCRIMINATOR = 0.00001
-LR_COMBINED = 0.0001
+LR_DISCRIMINATOR = 0.00005
+LR_COMBINED = 0.0005
 
 LR_DECAY_FACTOR = 0.2
 LR_DECAY_PERIOD = 20000

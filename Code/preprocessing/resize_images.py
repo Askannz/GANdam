@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import cv2
 
-TARGET_SHAPE = (64, 64)
+TARGET_SHAPE = (256, 256)
 
 def main():
 
