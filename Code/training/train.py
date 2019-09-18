@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 import cv2
 import keras
+from keras import backend as K
 from keras.layers import Input
 from keras.models import Model
 from keras.optimizers import Adam
@@ -24,6 +25,10 @@ keras.Model._check_trainable_weights_consistency = _check_trainable_weights_cons
 BATCH_SIZE = 32
 LR_DISCRIMINATOR = 0.00001
 LR_COMBINED = 0.0001
+
+LR_DECAY_FACTOR = 0.2
+LR_DECAY_PERIOD = 20000
+
 DISCRIMINATOR_LABELS_NOISE = 0.01
 
 SINGLE_SAMPLE_FREQ = 50
@@ -78,6 +83,10 @@ def main():
         print("(%d) Discriminator : %f / %f / %.2f %% / %.2f %% || Combined : %f"
               % (epoch, discr_loss_true, discr_loss_fake, 100 * discr_acc_true, 100 * discr_acc_fake, comb_loss))
 
+        if epoch != 0 and epoch % LR_DECAY_PERIOD == 0:
+            _decay_lr(discriminator, "Discriminator")
+            _decay_lr(combined, "Combined")
+
         if epoch % SINGLE_SAMPLE_FREQ == 0:
             _sample_single_image(generator, epoch)
 
@@ -131,6 +140,15 @@ def _make_trainable_models():
     combined.compile(loss="binary_crossentropy", optimizer=optimizer_combined)
 
     return generator, discriminator, combined
+
+def _decay_lr(model, name):
+
+    old_lr = float(K.get_value(model.optimizer.lr))
+    new_lr = LR_DECAY_FACTOR * old_lr
+
+    print("%s: decay %f -> %f" % (name, old_lr, new_lr))
+
+    K.set_value(model.optimizer.lr, new_lr)
 
 def _sample_single_image(generator, epoch):
     samples_path = Path("../../Generated/training/training_samples/")
