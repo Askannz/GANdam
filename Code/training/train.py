@@ -22,7 +22,7 @@ def _check_trainable_weights_consistency(self):
 keras.Model._check_trainable_weights_consistency = _check_trainable_weights_consistency
 
 
-BATCH_SIZE = 32
+BATCH_SIZE = 16
 LR_DISCRIMINATOR = 0.00005
 LR_COMBINED = 0.0005
 
