@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 from keras.models import load_model
 
-LATENT_DIM = 300
+LATENT_DIM = 2048
 NB_SAMPLES = 32
 
 def main():
